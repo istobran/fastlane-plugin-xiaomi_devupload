@@ -67,7 +67,7 @@ module Fastlane
                                   env_name: "XIAOMI_DEVUPLOAD_SCREENSHOT_PATHS",
                                description: "Path to screenshot files for upload",
                                   optional: true,
-                                      type: Array),
+                                      type: Array)
         ]
       end
 

@@ -32,25 +32,33 @@ module Fastlane
       # 创建 MD5 校验集
       def self.create_sign(request_data, apk_path, icon_path, screenshot_paths, private_key)
         md5_list = []
-        md5_list.push({
-          :name => "RequestData",
-          :hash => Digest::MD5.hexdigest(request_data.to_json)
-        }) if !request_data.nil? and !request_data.empty?
-        md5_list.push({
-          :name => "apk",
-          :hash => Digest::MD5.hexdigest(File.read(apk_path))
-        }) if !apk_path.nil?
-        md5_list.push({
-          :name => "icon",
-          :hash => Digest::MD5.hexdigest(File.read(icon_path))
-        }) if !icon_path.nil?
-        screenshot_paths.each_with_index do |path, index|
+        if !request_data.nil? && !request_data.empty?
           md5_list.push({
-            :name => "screenshot_#{index}",
-            :hash => Digest::MD5.hexdigest(File.read(path))
+            name: "RequestData",
+            hash: Digest::MD5.hexdigest(request_data.to_json)
           })
-        end if !screenshot_paths.nil? and !screenshot_paths.empty?
-        { :sig => md5_list, :password => private_key }
+        end
+        unless apk_path.nil?
+          md5_list.push({
+            name: "apk",
+            hash: Digest::MD5.hexdigest(File.read(apk_path))
+          })
+        end
+        unless icon_path.nil?
+          md5_list.push({
+            name: "icon",
+            hash: Digest::MD5.hexdigest(File.read(icon_path))
+          })
+        end
+        if !screenshot_paths.nil? && !screenshot_paths.empty?
+          screenshot_paths.each_with_index do |path, index|
+            md5_list.push({
+              name: "screenshot_#{index}",
+              hash: Digest::MD5.hexdigest(File.read(path))
+            })
+          end
+        end
+        { sig: md5_list, password: private_key }
       end
 
       # 上传 apk 包
@@ -62,19 +70,21 @@ module Fastlane
           options[:screenshot_paths],
           options[:private_key]
         )
-        req = { :RequestData => options[:request_data].to_json }
-        req[:apk] = File.new(options[:apk_path], 'rb') if !options[:apk_path].nil?
-        req[:icon] = File.new(options[:icon_path], 'rb') if !options[:icon_path].nil?
-        options[:screenshot_paths].each_with_index do |path, index|
-          req["screenshot_#{index}"] = File.new(path, 'rb') if !path.nil?
-        end if !options[:screenshot_paths].nil? and !screenshot_paths.empty?
+        req = { RequestData: options[:request_data].to_json }
+        req[:apk] = File.new(options[:apk_path], 'rb') unless options[:apk_path].nil?
+        req[:icon] = File.new(options[:icon_path], 'rb') unless options[:icon_path].nil?
+        if !options[:screenshot_paths].nil? && !screenshot_paths.empty?
+          options[:screenshot_paths].each_with_index do |path, index|
+            req["screenshot_#{index}"] = File.new(path, 'rb') unless path.nil?
+          end
+        end
         req[:SIG] = rsa_sign(md5_sign.to_json, options[:public_key_path])
         res = RestClient.post("#{XIAOMI_BASEURL}/dev/push", req)
         resbody = JSON.parse(res.body)
-        if resbody["result"] == 0 then
-          puts resbody
+        if resbody["result"] == 0
+          puts(resbody)
         else
-          raise StandardError.new res.body
+          raise StandardError, res.body
         end
       end
     end

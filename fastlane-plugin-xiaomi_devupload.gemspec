@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = 'i@bangz.me'
 
   spec.summary       = 'Fastlane plugin for upload android app to xiaomi market'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-xiaomi_devupload"
+  spec.homepage      = "https://github.com/istobran/fastlane-plugin-xiaomi_devupload"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   # since this would cause a circular dependency
 
   # spec.add_dependency 'your-dependency', '~> 1.0.0'
+  spec.add_dependency 'rest-client', '~> 2.1.0'
 
   spec.add_development_dependency('pry')
   spec.add_development_dependency('bundler')

@@ -1,3 +1,15 @@
 lane :test do
-  xiaomi_devupload
+  xiaomi_devupload(
+    request_data: {
+      :userName => "app@example.com", # 小米开放平台用户名
+      :synchroType => 1, # 更新类型：0=新增，1=更新包，2=内容更新
+      :appInfo => {
+        :appName => "示例应用", # 应用名称
+        :packageName => "com.example.app", # 应用包名
+        :updateDesc => options[:desc], # 更新信息
+      },
+    },
+    public_key_path: File.expand_path('dev.api.public.cer') # 公钥文件路径
+    private_key: 'abc123', # 私钥字符串
+  )
 end
